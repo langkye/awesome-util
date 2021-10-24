@@ -1,0 +1,238 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <!--////////////////////////////////属性////////////////////////////////-->
+    <!--日志文件路径-->
+    <property name="log.path" value="./logs/awesome-util"/>
+    <!--外部属性-->
+    <property resource="application.yml"/>
+    <!--spring配置文件-->
+    <!--<springProfile name="application.yml"/>-->
+    <!--当前应用名称（日志内容、日志文件名称中引用）-->
+    <property name="appName" value="awesome-util"/>
+    <!--<springProperty name="appName" scope="context" source="spring.application.name"/>-->
+
+    <!--日志级别-->
+    <property name="logger.level" value="debug"/>
+
+    <!--////////////////////////////////日志动作////////////////////////////////-->
+    <!--控制台输出：所有级别日志-->
+    <!--默认格式日志-->
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d %highlight(%-5level) %cyan(%logger{200}) [%thread] [processing:%X{processing}] : %msg%n</pattern>
+        </encoder>
+    </appender>
+    <!--JSON格式日志-->
+    <appender name="JSON_STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder charset="UTF-8" class="net.logstash.logback.encoder.LoggingEventCompositeJsonEncoder">
+            <providers class="net.logstash.logback.composite.loggingevent.LoggingEventJsonProviders">
+                <pattern>
+                    <pattern>
+                        {
+                        "logDate":"%d{yyyy-MM-dd HH:mm:ss.SSS}",<!--日志时间-->
+                        "level":"%level",                       <!--日志级别-->
+                        "appName":"${appName}",                 <!--项目名称-->
+                        "logger":"%logger.%method\\(%line\\)",  <!--日志位置-->
+                        "thread":"%thread",                     <!--当前线程-->
+                        "traceId":"%X{traceId}",                <!--自定义：日志ID-->
+                        "userId":"%X{userId}",                  <!--自定义：用户ID-->
+                        "requestUri":"%X{requestUri}",          <!--自定义：请求URI-->
+                        "clientIp":"%X{clientIp}",              <!--自定义：客户端IP-->
+                        "message":"%msg",                       <!--日志信息-->
+                        "exception":"%exception{100}"           <!--异常信息-->
+                        }
+                    </pattern>
+                </pattern>
+            </providers>
+        </encoder>
+    </appender>
+    <!--写入文件：所有级别日志-->
+    <appender name="JSON_FILE_ALL" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${log.path}/${appName}.log</file>
+
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>${log.path}/${appName}_%d{yyyy-MM-dd_HH}.%i.log.gz</fileNamePattern>
+            <maxFileSize>100MB</maxFileSize>
+            <!-- 30天 -->
+            <maxHistory>720</maxHistory>
+            <totalSizeCap>10GB</totalSizeCap>
+        </rollingPolicy>
+
+        <encoder charset="UTF-8" class="net.logstash.logback.encoder.LoggingEventCompositeJsonEncoder">
+            <providers class="net.logstash.logback.composite.loggingevent.LoggingEventJsonProviders">
+                <pattern>
+                    <pattern>
+                        {
+                        "logDate":"%d{yyyy-MM-dd HH:mm:ss.SSS}",<!--日志时间-->
+                        "level":"%level",                       <!--日志级别-->
+                        "appName":"${appName}",                 <!--项目名称-->
+                        "logger":"%logger.%method\\(%line\\)",  <!--日志位置-->
+                        "thread":"%thread",                     <!--当前线程-->
+                        "traceId":"%X{traceId}",                <!--自定义：日志ID-->
+                        "userId":"%X{userId}",                  <!--自定义：用户ID-->
+                        "requestUri":"%X{requestUri}",          <!--自定义：请求URI-->
+                        "clientIp":"%X{clientIp}",              <!--自定义：客户端IP-->
+                        "message":"%msg",                       <!--日志信息-->
+                        "exception":"%exception{100}"           <!--异常信息-->
+                        }
+                    </pattern>
+                </pattern>
+            </providers>
+        </encoder>
+    </appender>
+    <!--写入文件：ERROR级别及以上日志-->
+    <appender name="JSON_FILE_ERROR" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${log.path}/error.log</file>
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>ERROR</level>
+        </filter>
+
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>${log.path}/error_%d{yyyy-MM-dd_HH}.%i.log.gz</fileNamePattern>
+            <maxFileSize>100MB</maxFileSize>
+            <!-- 30天 -->
+            <maxHistory>720</maxHistory>
+            <totalSizeCap>10GB</totalSizeCap>
+        </rollingPolicy>
+
+        <encoder charset="UTF-8" class="net.logstash.logback.encoder.LoggingEventCompositeJsonEncoder">
+            <providers class="net.logstash.logback.composite.loggingevent.LoggingEventJsonProviders">
+                <pattern>
+                    <pattern>
+                        {
+                        "logDate":"%d{yyyy-MM-dd HH:mm:ss.SSS}",<!--日志时间-->
+                        "level":"%level",                       <!--日志级别-->
+                        "appName":"${appName}",                 <!--项目名称-->
+                        "logger":"%logger.%method\\(%line\\)",  <!--日志位置-->
+                        "thread":"%thread",                     <!--当前线程-->
+                        "traceId":"%X{traceId}",                <!--自定义：日志ID-->
+                        "userId":"%X{userId}",                  <!--自定义：用户ID-->
+                        "requestUri":"%X{requestUri}",          <!--自定义：请求URI-->
+                        "clientIp":"%X{clientIp}",              <!--自定义：客户端IP-->
+                        "message":"%msg",                       <!--日志信息-->
+                        "exception":"%exception{100}"           <!--异常信息-->
+                        }
+                    </pattern>
+                </pattern>
+            </providers>
+        </encoder>
+    </appender>
+    <!--写入文件：sql状态日志-->
+    <appender name="JSON_FILE_SQL_STAT" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${log.path}/sql_stat.log</file>
+
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>${log.path}/sql_stat_%d.%i.log.gz</fileNamePattern>
+            <maxFileSize>100MB</maxFileSize>
+            <!-- 10天 -->
+            <maxHistory>10</maxHistory>
+            <totalSizeCap>1GB</totalSizeCap>
+        </rollingPolicy>
+
+        <encoder charset="UTF-8" class="net.logstash.logback.encoder.LoggingEventCompositeJsonEncoder">
+            <providers class="net.logstash.logback.composite.loggingevent.LoggingEventJsonProviders">
+                <pattern>
+                    <pattern>
+                        {
+                        "logDate":"%d{yyyy-MM-dd HH:mm:ss.SSS}",<!--日志时间-->
+                        "level":"%level",                       <!--日志级别-->
+                        "appName":"${appName}",                 <!--项目名称-->
+                        "logger":"%logger.%method\\(%line\\)",  <!--日志位置-->
+                        "thread":"%thread",                     <!--当前线程-->
+                        "traceId":"%X{traceId}",                <!--自定义：日志ID-->
+                        "userId":"%X{userId}",                  <!--自定义：用户ID-->
+                        "requestUri":"%X{requestUri}",          <!--自定义：请求URI-->
+                        "clientIp":"%X{clientIp}",              <!--自定义：客户端IP-->
+                        "message":"%msg",                       <!--日志信息-->
+                        "exception":"%exception{100}"           <!--异常信息-->
+                        }
+                    </pattern>
+                </pattern>
+            </providers>
+        </encoder>
+    </appender>
+    <!--写入文件：sql慢日志-->
+    <appender name="JSON_FILE_SLOW_SQL" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${log.path}/slow_sql.log</file>
+
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>${log.path}/slow_sql_%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
+            <maxFileSize>100MB</maxFileSize>
+            <!-- 10天 -->
+            <maxHistory>10</maxHistory>
+            <totalSizeCap>1GB</totalSizeCap>
+        </rollingPolicy>
+
+        <encoder charset="UTF-8" class="net.logstash.logback.encoder.LoggingEventCompositeJsonEncoder">
+            <providers class="net.logstash.logback.composite.loggingevent.LoggingEventJsonProviders">
+                <pattern>
+                    <pattern>
+                        {
+                        "logDate":"%d{yyyy-MM-dd HH:mm:ss.SSS}",<!--日志时间-->
+                        "level":"%level",                       <!--日志级别-->
+                        "appName":"${appName}",                 <!--应用名称-->
+                        "logger":"%logger.%method\\(%line\\)",  <!--日志调用位置-->
+                        "thread":"%thread",                     <!--当前线程-->
+                        "traceId":"%X{traceId}",                <!--自定义：日志ID-->
+                        "userId":"%X{userId}",                  <!--自定义：用户ID-->
+                        "requestUri":"%X{requestUri}",          <!--自定义：请求URI-->
+                        "clientIp":"%X{clientIp}",              <!--自定义：客户端IP-->
+                        "message":"%msg",                       <!--日志信息-->
+                        "exception":"%exception{100}"           <!--异常信息-->
+                        }
+                    </pattern>
+                </pattern>
+            </providers>
+        </encoder>
+    </appender>
+
+    <!--////////////////////////////////日志级别&引用////////////////////////////////-->
+    <!--spring日志级别-->
+    <logger name="org.springframework" level="INFO"/>
+    <!--数据库连接池日志级别-->
+    <logger name="druid.sql" level="DEBUG"/>
+    <!--zk日志级别-->
+    <logger name="org.apache.zookeeper" level="WARN" />
+    <!--监控日志级别-->
+    <logger name="org.apache.curator.framework" level="WARN" />
+    <!--连接池日志实现引用-->
+    <logger name="com.alibaba.druid.pool.DruidDataSourceStatLoggerImpl" level="INFO">
+        <appender-ref ref="JSON_FILE_SQL_STAT"/>
+    </logger>
+    <!--连接池过滤日志级别-->
+    <logger name="com.alibaba.druid.filter.stat.StatFilter" additivity="false" level="INFO">
+        <appender-ref ref="JSON_FILE_SLOW_SQL"/>
+    </logger>
+
+
+
+    <!--////////////////////////////////日志激活////////////////////////////////-->
+    <!--/////////////////Spring 日志配置/////////////-->
+    <!--默认日志-->
+    <!--default: spring.profiles.active=""-->
+    <!--<springProfile name="default">-->
+    <!--    <root level="INFO">-->
+    <!--        <appender-ref ref="JSON_STDOUT"/>-->
+    <!--        <appender-ref ref="JSON_FILE_ALL"/>-->
+    <!--        <appender-ref ref="JSON_FILE_ERROR"/>-->
+    <!--    </root>-->
+    <!--</springProfile>-->
+    <!--非默认日志-->
+    <!--!default: spring.profiles.active!=""
+        e.g.:dev|sit|uat|prod|...
+    -->
+    <!--<springProfile name="!default">-->
+    <!--    <root level="INFO">-->
+    <!--        <appender-ref ref="JSON_FILE_ALL"/>-->
+    <!--        <appender-ref ref="JSON_FILE_ERROR"/>-->
+    <!--    </root>-->
+    <!--</springProfile>-->
+
+    <!--/////////////////普通 日志配置/////////////-->
+    <root>
+        <level value="${logger.level}"/>
+        <appender-ref ref="JSON_STDOUT"/>
+        <appender-ref ref="JSON_FILE_ALL"/>
+        <appender-ref ref="JSON_FILE_ERROR"/>
+    </root>
+</configuration>
